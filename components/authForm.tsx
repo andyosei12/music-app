@@ -1,23 +1,61 @@
-import { useState } from "react";
+import { useState, FC } from "react";
+import Image from "next/image";
 import { Box, Flex, Input, Button } from "@chakra-ui/react";
 import { useRouter } from "next/router";
-import { FC } from "react";
 import { useSWRConfig } from "swr";
 import { auth } from "../lib/mutations";
 
-const AuthForm: FC<{ mode: string }> = ({ mode }) => {
+const AuthForm: FC<{ mode: "signin" | "signup" }> = ({ mode }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState("");
   const router = useRouter();
 
+  const submitFormHandler = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    await auth(mode, { email, password });
+    setIsLoading(false);
+    router.push("/");
+  };
+
   return (
     <Box height="100vh" width="100vw" bg="black" color="white">
-      <Flex justify="center" align="center" height="100px">
-        Hello
+      <Flex
+        justify="center"
+        align="center"
+        height="100px"
+        borderBottom="1px solid white"
+      >
+        <Image src="/logo.svg" height={60} width={120} />
       </Flex>
       <Flex justify="center" align="center" height="calc(100vh - 100px)">
-        Hello
+        <Box padding="50px" bg="gray.900" borderRadius="6px">
+          <form onSubmit={submitFormHandler}>
+            <Input
+              placeholder="email"
+              type="email"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              placeholder="password"
+              type="password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+              type="submit"
+              bg="green.500"
+              isLoading={isLoading}
+              sx={{
+                "&:hover": {
+                  bg: "green.300",
+                },
+              }}
+            >
+              {mode}
+            </Button>
+          </form>
+        </Box>
       </Flex>
     </Box>
   );
